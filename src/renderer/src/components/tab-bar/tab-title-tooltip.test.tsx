@@ -12,7 +12,6 @@ import type { TabDragItemData } from '../tab-group/useTabDragSplit'
 import BrowserTab from './BrowserTab'
 import EditorFileTab from './EditorFileTab'
 import SortableTab from './SortableTab'
-import { TAB_CONTAINER_WIDTH_CLASSES } from './tab-width-rules'
 
 let mockTabAgent: TuiAgent | null = null
 
@@ -189,13 +188,13 @@ function textSpanHtml(markup: string, text: string): string {
 
 function expectTabContainerWidth(markup: string, root: string): void {
   const container = firstOpeningTag(markup)
-  expect(container).toContain(TAB_CONTAINER_WIDTH_CLASSES)
-  expect(container).toContain('w-[180px]')
-  expect(container).toContain('min-[1280px]:w-[220px]')
+  // Why: pinned literally — a definite `w-*` is what stops live title updates from resizing
+  // every tab, so asserting against the constant would let that guarantee be edited away.
+  const widthClasses = 'w-[180px] min-w-[88px] min-[1280px]:w-[220px]'
+  expect(container).toContain(widthClasses)
   expect(root).not.toContain('w-[180px]')
   expect(root).not.toContain('min-w-[88px]')
-  expect(root).not.toContain('max-w-[280px]')
-  expect(root).not.toContain('flex-[1_1_180px]')
+  expect(root).not.toContain('min-[1280px]:w-[220px]')
 }
 
 function expectTooltipContent(markup: string, text: string): void {

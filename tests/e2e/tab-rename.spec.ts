@@ -330,6 +330,12 @@ test.describe('Tab Rename (Inline)', () => {
     const before = await Promise.all(
       tabs.map((tab) => tab.evaluate((element) => element.getBoundingClientRect().width))
     )
+    // Why: at the 88px shrink floor widths are stable for the wrong reason, and being above it is
+    // also what proves the definite tab width applied — so this fails first on a regression.
+    expect(
+      Math.min(...before),
+      'tabs must be above the 88px shrink floor for the stability check to mean anything'
+    ).toBeGreaterThan(88)
 
     await orcaPage.evaluate(
       ({ tabId }) => {
@@ -351,6 +357,7 @@ test.describe('Tab Rename (Inline)', () => {
     await tabs[2]!.click()
     await expect(tabs[2]!).toHaveAttribute('data-active', 'true')
   })
+
   test('rename input stays at a usable width when many tabs are open', async ({ orcaPage }) => {
     const worktreeId = (await getActiveWorktreeId(orcaPage))!
     const targetTabId = await getActiveTabId(orcaPage)
